@@ -1,4 +1,9 @@
 
+variables:
+  BUILD_VERSION: 1.9.6
+  BUILD_DATE: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
+  VCS_REF: $(git describe --tags --always --dirty)
+
 image: docker:stable-git
 
 services:
@@ -29,10 +34,6 @@ buildx:
 
 .test:
   stage: test
-  variables:
-    BUILD_DATE: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
-    BUILD_VERSION: 1.9.6
-    VCS_REF: $(git describe --tags --always --dirty)
   script:
     - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform ${PLATFORM} --load .
     - docker-compose up --abort-on-container-exit

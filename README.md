@@ -22,7 +22,7 @@ Simply pulling `klutchell/unbound` should retrieve the correct image for your ar
 
 ```bash
 # build a local image
-docker build .
+docker build . -t klutchell/unbound
 
 # (re)build and test a local image
 docker-compose up --abort-on-container-exit
