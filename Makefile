@@ -1,5 +1,5 @@
 
-REGISTRY := registry.hub.docker.com/klutchell/unbound
+REGISTRY := docker.io/klutchell/unbound
 AUTHORS := Kyle Harding <https://klutchell.dev>
 SOURCE := https://gitlab.com/klutchell/unbound
 DESCRIPTION := Unbound is a validating, recursive, caching DNS resolver
@@ -12,18 +12,18 @@ VCS_REF := $(strip $(shell git describe --tags --always --dirty))
 DOCKER_CLI_EXPERIMENTAL := enabled
 BUILDX_INSTANCE_NAME := $(subst /,-,$(REGISTRY))
 BUILD_OPTS := \
-		--label "org.opencontainers.image.created=$(BUILD_DATE)" \
-		--label "org.opencontainers.image.authors=$(AUTHORS)" \
-		--label "org.opencontainers.image.url=$(SOURCE)" \
-		--label "org.opencontainers.image.documentation=$(SOURCE)" \
-		--label "org.opencontainers.image.source=$(SOURCE)" \
-		--label "org.opencontainers.image.version=$(BUILD_VERSION)" \
-		--label "org.opencontainers.image.revision=$(VCS_REF)" \
-		--label "org.opencontainers.image.title=$(REGISTRY)" \
-		--label "org.opencontainers.image.description=$(DESCRIPTION)" \
-		--tag $(REGISTRY):$(TAG) \
-		--tag $(REGISTRY):latest \
-		$(EXTRA_OPTS)
+	--label "org.opencontainers.image.created=$(BUILD_DATE)" \
+	--label "org.opencontainers.image.authors=$(AUTHORS)" \
+	--label "org.opencontainers.image.url=$(SOURCE)" \
+	--label "org.opencontainers.image.documentation=$(SOURCE)" \
+	--label "org.opencontainers.image.source=$(SOURCE)" \
+	--label "org.opencontainers.image.version=$(BUILD_VERSION)" \
+	--label "org.opencontainers.image.revision=$(VCS_REF)" \
+	--label "org.opencontainers.image.title=$(REGISTRY)" \
+	--label "org.opencontainers.image.description=$(DESCRIPTION)" \
+	--tag $(REGISTRY):$(TAG) \
+	--tag $(REGISTRY):latest \
+	$(EXTRA_OPTS)
 
 COMPOSE_PROJECT_NAME := $(subst /,-,$(REGISTRY))
 COMPOSE_FILE := test/docker-compose.yml
