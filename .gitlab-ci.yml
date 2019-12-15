@@ -21,14 +21,9 @@ before_script:
   - mv buildx ~/.docker/cli-plugins/docker-buildx
   - apk add --no-cache curl git py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
   - pip install docker-compose
-
-.build:
-  image: docker:latest
-  stage: build
-  services:
-    - docker:dind
-  script:
-    - make buildx EXTRA_OPTS="--pull --load --platform=${PLATFORM}"
+  - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+  - docker buildx create --use --driver docker-container
+  - docker buildx inspect --bootstrap
 
 .test:
   image: docker:latest
@@ -36,18 +31,39 @@ before_script:
   services:
     - docker:dind
   script:
-    - make buildx test EXTRA_OPTS="--pull --load --platform=${PLATFORM}"
+    - docker buildx build --pull --cache-from=${CI_REGISTRY_IMAGE} --platform=${PLATFORM} --load
+    - docker-compose up --abort-on-container-exit
+  timeout: 2 hours
 
 gitlab:
   image: docker:latest
   stage: deploy
   services:
     - docker:dind
+  variables:
+    BUILD_DATE: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
+    BUILD_VERSION: 1.9.6
+    VCS_REF: $(git describe --tags --always --dirty)
   script:
     - echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
-    - make buildx IMAGE="${CI_REGISTRY_IMAGE}" EXTRA_OPTS="--pull --push --platform=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6"
+    - |
+      docker buildx build --pull --cache-from=${CI_REGISTRY_IMAGE} \
+      --build-arg BUILD_DATE --build-arg BUILD_VERSION --build-arg VCS_REF \
+      --platform=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 \
+      --push --tag=${CI_REGISTRY_IMAGE}:${BUILD_VERSION} --tag=${CI_REGISTRY_IMAGE}:latest
+  timeout: 2 hours
   only:
     - master
+
+dockerhub:
+  extends: gitlab
+  variables:
+    CI_REGISTRY: docker.io
+    CI_REGISTRY_IMAGE: docker.io/${DOCKERHUB_REPOSITORY}
+    CI_REGISTRY_USER: ${DOCKERHUB_USERNAME}
+    CI_REGISTRY_PASSWORD: ${DOCKERHUB_PASSWORD}
+  after_script:
+    - docker run -v ${PWD}:/workspace -e DOCKERHUB_USERNAME -e DOCKERHUB_PASSWORD -e DOCKERHUB_REPOSITORY -e README_FILEPATH=/workspace/README.md peterevans/dockerhub-description
 
 linux/amd64:
   extends: .test
@@ -78,13 +94,3 @@ linux/arm/v6:
   extends: .test
   variables:
     PLATFORM: linux/arm/v6
-
-dockerhub:
-  extends: gitlab
-  variables:
-    CI_REGISTRY: docker.io
-    CI_REGISTRY_IMAGE: docker.io/${DOCKERHUB_REPOSITORY}
-    CI_REGISTRY_USER: ${DOCKERHUB_USERNAME}
-    CI_REGISTRY_PASSWORD: ${DOCKERHUB_PASSWORD}
-  after_script:
-    - docker run -v ${PWD}:/workspace -e DOCKERHUB_USERNAME -e DOCKERHUB_PASSWORD -e DOCKERHUB_REPOSITORY -e README_FILEPATH=/workspace/README.md peterevans/dockerhub-description

@@ -21,17 +21,11 @@ Simply pulling `klutchell/unbound` should retrieve the correct image for your ar
 ## Building
 
 ```bash
-# display available commands
-make help
+# build a local image
+docker build .
 
-# clean dangling images, containers, and build instances
-make clean
-
-# build and test a local image
-make
-
-# cross-build on supported platforms with buildx
-make buildx EXTRA_OPTS="--load --platform=linux/arm/v7"
+# (re)build and test a local image
+docker-compose up --abort-on-container-exit
 ```
 
 ## Usage
