@@ -86,9 +86,9 @@ LABEL org.opencontainers.image.documentation "https://gitlab.com/klutchell/unbou
 LABEL org.opencontainers.image.source "https://gitlab.com/klutchell/unbound"
 LABEL org.opencontainers.image.title "klutchell/unbound"
 LABEL org.opencontainers.image.description "Unbound is a validating, recursive, caching DNS resolver"
-LABEL org.opencontainers.image.created "$(BUILD_DATE)"
-LABEL org.opencontainers.image.version "$(BUILD_VERSION)"
-LABEL org.opencontainers.image.revision "$(VCS_REF)"
+LABEL org.opencontainers.image.created "${BUILD_DATE}"
+LABEL org.opencontainers.image.version "${BUILD_VERSION}"
+LABEL org.opencontainers.image.revision "${VCS_REF}"
 
 COPY --from=build /etc/passwd /etc/group /etc/
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
