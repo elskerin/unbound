@@ -3,7 +3,6 @@ variables:
   BUILD_VERSION: 1.9.6
   BUILD_DATE: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
   VCS_REF: $(git describe --tags --always --dirty)
-  PLATFORMS: linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6
 
 image: docker:stable-git
 
@@ -37,30 +36,14 @@ buildx:
 .test:
   stage: test
   script:
-    - |
-      docker buildx build \
-      --pull \
-      --cache-from ${CI_REGISTRY_IMAGE} \
-      --platform ${PLATFORM} \
-      --tag ${DOCKERHUB_REPOSITORY} \
-      --load .
+    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform ${PLATFORM} --tag ${DOCKERHUB_REPOSITORY} --load .
     - docker-compose up --abort-on-container-exit
   timeout: 2 hours
 
 gitlab:
   stage: deploy
   script:
-    - |
-      docker buildx build \
-      --pull \
-      --cache-from ${CI_REGISTRY_IMAGE} \
-      --platform ${PLATFORMS} \
-      --build-arg BUILD_DATE \
-      --build-arg BUILD_VERSION \
-      --build-arg VCS_REF \
-      --tag ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} \
-      --tag ${CI_REGISTRY_IMAGE}:latest \
-      --push .
+    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 --build-arg BUILD_DATE --build-arg BUILD_VERSION --build-arg VCS_REF --tag ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} --tag ${CI_REGISTRY_IMAGE}:latest --push .
   timeout: 2 hours
   only:
     - master
@@ -73,14 +56,7 @@ dockerhub:
     CI_REGISTRY_USER: ${DOCKERHUB_USERNAME}
     CI_REGISTRY_PASSWORD: ${DOCKERHUB_PASSWORD}
   after_script:
-    - |
-      docker run \
-      -v ${PWD}:/workspace \
-      -e DOCKERHUB_USERNAME \
-      -e DOCKERHUB_PASSWORD \
-      -e DOCKERHUB_REPOSITORY \
-      -e README_FILEPATH=/workspace/README.md \
-      peterevans/dockerhub-description
+    - docker run -v ${PWD}:/workspace -e DOCKERHUB_USERNAME -e DOCKERHUB_PASSWORD -e DOCKERHUB_REPOSITORY -e README_FILEPATH=/workspace/README.md peterevans/dockerhub-description
 
 linux/amd64:
   extends: .test
