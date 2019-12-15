@@ -1,11 +1,26 @@
 
+buildx:
+  image: docker:stable-git
+  stage: .pre
+  services:
+    - docker:dind
+  variables:
+    GIT_STRATEGY: none
+  before_script: []
+  script:
+    - export DOCKER_BUILDKIT=1
+    - git clone git://github.com/docker/buildx /tmp/buildx
+    - docker build --platform=local -o . /tmp/buildx
+  artifacts:
+    paths:
+      - buildx
+    expire_in: 1 hour
+
 before_script:
   - mkdir -p ~/.docker/cli-plugins
-  - apk add --no-cache curl git python-dev libffi-dev openssl-dev gcc libc-dev make
-  - curl -L "https://github.com/docker/buildx/releases/download/v0.3.1/buildx-v0.3.1.linux-amd64" -o ~/.docker/cli-plugins/docker-buildx
-  - chmod +x ~/.docker/cli-plugins/docker-buildx
-  - curl -L "https://github.com/docker/compose/releases/download/1.25.1-rc1/docker-compose-Linux-x86_64" -o /usr/local/bin/docker-compose
-  - chmod +x /usr/local/bin/docker-compose
+  - mv buildx ~/.docker/cli-plugins/docker-buildx
+  - apk add --no-cache curl git py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
+  - pip install docker-compose
 
 .build:
   image: docker:latest
