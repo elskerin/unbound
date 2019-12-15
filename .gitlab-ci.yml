@@ -44,7 +44,7 @@ before_script:
     - docker:dind
   script:
     - echo "${REGISTRY_PASSWORD}" | docker login -u "${REGISTRY_USER}" --password-stdin "${REGISTRY_URL}"
-    - make buildx DOCKER_REPO="${REGISTRY_URL}" EXTRA_OPTS="--pull --push --platform=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6"
+    - make buildx REGISTRY="${REGISTRY_URL}" EXTRA_OPTS="--pull --push --platform=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6"
   only:
     - master
 
