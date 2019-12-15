@@ -35,7 +35,7 @@ buildx:
 .test:
   stage: test
   script:
-    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform ${PLATFORM} --load .
+    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform ${PLATFORM} --load -t klutchell/unbound .
     - docker-compose up --abort-on-container-exit
   timeout: 2 hours
 

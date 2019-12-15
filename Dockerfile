@@ -2,7 +2,7 @@ FROM alpine:3.10 as build
 
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
-RUN apk add --no-cache build-base=0.5-r1 ca-certificates=20190108-r0 curl=7.66.0-r0 linux-headers=4.19.36-r0 perl=5.28.2-r1
+RUN apk add --no-cache build-base=0.5-r1 ca-certificates=20190108-r0 curl=7.66.0-r0 linux-headers=4.19.36-r0 perl=5.28.2-r1 python=2.7.16-r1
 
 WORKDIR /tmp/libevent
 
