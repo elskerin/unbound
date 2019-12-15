@@ -1,7 +1,7 @@
 
 buildx:
   image: docker:stable-git
-  stage: buildx
+  stage: .pre
   services:
     - docker:19.03-dind
   variables:
