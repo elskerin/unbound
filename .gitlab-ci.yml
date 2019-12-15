@@ -3,13 +3,14 @@ buildx:
   image: docker:stable-git
   stage: .pre
   services:
-    - docker:19.03-dind
+    - docker:dind
   variables:
     GIT_STRATEGY: none
   before_script: []
   script:
     - export DOCKER_BUILDKIT=1
-    - docker build --platform=local -o . git://github.com/docker/buildx
+    - git clone git://github.com/docker/buildx /tmp/buildx
+    - docker build --platform=local -o . /tmp/buildx
   artifacts:
     paths:
       - buildx
