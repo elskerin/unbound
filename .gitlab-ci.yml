@@ -1,26 +1,92 @@
 
-docker-build-master:
+buildx:
+  image: docker:stable-git
+  stage: buildx
+  services:
+    - docker:19.03-dind
+  variables:
+    GIT_STRATEGY: none
+  before_script: []
+  script:
+    - export DOCKER_BUILDKIT=1
+    - docker build --platform=local -o . git://github.com/docker/buildx
+  artifacts:
+    paths:
+      - buildx
+    expire_in: 1 hour
+
+before_script:
+  - mkdir -p ~/.docker/cli-plugins
+  - mv buildx ~/.docker/cli-plugins/docker-buildx
+  - apk add --no-cache build-base git
+
+.build:
   image: docker:latest
   stage: build
   services:
     - docker:dind
-  before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
-    - docker push "$CI_REGISTRY_IMAGE"
+    - make buildx EXTRA_OPTS="--pull --load --platform=${PLATFORM}"
+
+.test:
+  image: docker:latest
+  stage: test
+  services:
+    - docker:dind
+  script:
+    - make buildx test EXTRA_OPTS="--pull --load --platform=${PLATFORM}"
+
+.deploy:
+  image: docker:latest
+  stage: deploy
+  services:
+    - docker:dind
+  script:
+    - echo "${REGISTRY_PASSWORD}" | docker login -u "${REGISTRY_USER}" --password-stdin "${REGISTRY_URL}"
+    - make buildx DOCKER_REPO="${REGISTRY_URL}" EXTRA_OPTS="--pull --push --platform=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6"
   only:
     - master
 
-docker-build:
-  image: docker:latest
-  stage: build
-  services:
-    - docker:dind
-  before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-  script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" .
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
-  except:
-    - master
+linux/amd64:
+  extends: .test
+  variables:
+    PLATFORM: linux/amd64
+
+linux/arm64:
+  extends: .test
+  variables:
+    PLATFORM: linux/arm64
+
+linux/ppc64le:
+  extends: .test
+  variables:
+    PLATFORM: linux/ppc64le
+
+linux/s390x:
+  extends: .test
+  variables:
+    PLATFORM: linux/s390x
+
+linux/arm/v7:
+  extends: .test
+  variables:
+    PLATFORM: linux/arm/v7
+
+linux/arm/v6:
+  extends: .test
+  variables:
+    PLATFORM: linux/arm/v6
+
+deploy:
+  extends: .deploy
+  variables:
+    REGISTRY_URL: ${CI_REGISTRY}
+    REGISTRY_USER: ${CI_REGISTRY_USER}
+    REGISTRY_PASSWORD: ${CI_REGISTRY_PASSWORD}
+
+external:
+  extends: .deploy
+  variables:
+    REGISTRY_URL: ${EXTERNAL_REGISTRY}
+    REGISTRY_USER: ${EXTERNAL_REGISTRY_USER}
+    REGISTRY_PASSWORD: ${EXTERNAL_REGISTRY_PASSWORD}
