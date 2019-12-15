@@ -1,5 +1,5 @@
 
-REGISTRY := docker.io/klutchell/unbound
+IMAGE := docker.io/klutchell/unbound
 AUTHORS := Kyle Harding <https://klutchell.dev>
 SOURCE := https://gitlab.com/klutchell/unbound
 DESCRIPTION := Unbound is a validating, recursive, caching DNS resolver
@@ -10,7 +10,7 @@ BUILD_VERSION := $(TAG)
 VCS_REF := $(strip $(shell git describe --tags --always --dirty))
 
 DOCKER_CLI_EXPERIMENTAL := enabled
-BUILDX_INSTANCE_NAME := $(subst /,-,$(REGISTRY))
+BUILDX_INSTANCE_NAME := $(subst /,-,$(IMAGE))
 BUILD_OPTS := \
 	--label "org.opencontainers.image.created=$(BUILD_DATE)" \
 	--label "org.opencontainers.image.authors=$(AUTHORS)" \
@@ -19,15 +19,15 @@ BUILD_OPTS := \
 	--label "org.opencontainers.image.source=$(SOURCE)" \
 	--label "org.opencontainers.image.version=$(BUILD_VERSION)" \
 	--label "org.opencontainers.image.revision=$(VCS_REF)" \
-	--label "org.opencontainers.image.title=$(REGISTRY)" \
+	--label "org.opencontainers.image.title=$(IMAGE)" \
 	--label "org.opencontainers.image.description=$(DESCRIPTION)" \
-	--tag $(REGISTRY):$(TAG) \
-	--tag $(REGISTRY):latest \
+	--tag $(IMAGE):$(TAG) \
+	--tag $(IMAGE):latest \
 	$(EXTRA_OPTS)
 
-COMPOSE_PROJECT_NAME := $(subst /,-,$(REGISTRY))
+COMPOSE_PROJECT_NAME := $(subst /,-,$(IMAGE))
 COMPOSE_FILE := test/docker-compose.yml
-COMPOSE_OPTIONS := -e COMPOSE_PROJECT_NAME -e COMPOSE_FILE -e REGISTRY
+COMPOSE_OPTIONS := -e COMPOSE_PROJECT_NAME -e COMPOSE_FILE -e IMAGE
 
 .EXPORT_ALL_VARIABLES:
 
@@ -52,7 +52,7 @@ test: binfmt ## run a simple image test with docker-compose
 clean: ## clean dangling images, containers, and build instances
 	-docker-compose down
 	-docker buildx rm $(BUILDX_INSTANCE_NAME)
-	-docker image prune --all --force --filter "label=org.opencontainers.image.title=$(REGISTRY)"
+	-docker image prune --all --force --filter "label=org.opencontainers.image.title=$(IMAGE)"
 
 binfmt:
 	docker run --rm --privileged aptman/qus -s -- -r

@@ -38,14 +38,14 @@ before_script:
   script:
     - make buildx test EXTRA_OPTS="--pull --load --platform=${PLATFORM}"
 
-.deploy:
+gitlab:
   image: docker:latest
   stage: deploy
   services:
     - docker:dind
   script:
-    - echo "${REGISTRY_PASSWORD}" | docker login -u "${REGISTRY_USER}" --password-stdin "${REGISTRY_URL}"
-    - make buildx REGISTRY="${REGISTRY_URL}" EXTRA_OPTS="--pull --push --platform=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6"
+    - echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
+    - make buildx IMAGE="${CI_REGISTRY_IMAGE}" EXTRA_OPTS="--pull --push --platform=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6"
   only:
     - master
 
@@ -79,16 +79,12 @@ linux/arm/v6:
   variables:
     PLATFORM: linux/arm/v6
 
-deploy:
-  extends: .deploy
+dockerhub:
+  extends: gitlab
   variables:
-    REGISTRY_URL: ${CI_REGISTRY}
-    REGISTRY_USER: ${CI_REGISTRY_USER}
-    REGISTRY_PASSWORD: ${CI_REGISTRY_PASSWORD}
-
-external:
-  extends: .deploy
-  variables:
-    REGISTRY_URL: ${EXTERNAL_REGISTRY}
-    REGISTRY_USER: ${EXTERNAL_REGISTRY_USER}
-    REGISTRY_PASSWORD: ${EXTERNAL_REGISTRY_PASSWORD}
+    CI_REGISTRY: docker.io
+    CI_REGISTRY_IMAGE: docker.io/${DOCKERHUB_REPOSITORY}
+    CI_REGISTRY_USER: ${DOCKERHUB_USERNAME}
+    CI_REGISTRY_PASSWORD: ${DOCKERHUB_PASSWORD}
+  after_script:
+    - docker run -v ${PWD}:/workspace -e DOCKERHUB_USERNAME -e DOCKERHUB_PASSWORD -e DOCKERHUB_REPOSITORY -e README_FILEPATH=/workspace/README.md peterevans/dockerhub-description
