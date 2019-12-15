@@ -2,7 +2,7 @@
 before_script:
   - mkdir -p ~/.docker/cli-plugins
   - apk add --no-cache curl git python-dev libffi-dev openssl-dev gcc libc-dev make
-  - curl -L "https://github.com/docker/buildx/releases/download/v0.3.1/buildx-v0.3.1.linux-amd64" - ~/.docker/cli-plugins/docker-buildx
+  - curl -L "https://github.com/docker/buildx/releases/download/v0.3.1/buildx-v0.3.1.linux-amd64" -o ~/.docker/cli-plugins/docker-buildx
   - chmod +x ~/.docker/cli-plugins/docker-buildx
   - curl -L "https://github.com/docker/compose/releases/download/1.25.1-rc1/docker-compose-Linux-x86_64" -o /usr/local/bin/docker-compose
   - chmod +x /usr/local/bin/docker-compose
