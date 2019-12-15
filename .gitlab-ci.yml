@@ -3,12 +3,13 @@ buildx:
   image: docker:stable-git
   stage: .pre
   services:
-    - docker:dind
+    - name: docker:dind
+      command: ["--experimental"]
   variables:
     GIT_STRATEGY: none
+    DOCKER_BUILDKIT: 1
   before_script: []
   script:
-    - export DOCKER_BUILDKIT=1
     - git clone git://github.com/docker/buildx /tmp/buildx
     - docker build --platform=local -o . /tmp/buildx
   artifacts:
@@ -23,15 +24,15 @@ before_script:
   - pip install docker-compose
   - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
   - docker buildx create --use --driver docker-container
-  - docker buildx inspect --bootstrap
 
 .test:
   image: docker:latest
   stage: test
   services:
-    - docker:dind
+    - name: docker:dind
+      command: ["--experimental"]
   script:
-    - docker buildx build --pull --cache-from=${CI_REGISTRY_IMAGE} --platform=${PLATFORM} --load
+    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform ${PLATFORM} --load
     - docker-compose up --abort-on-container-exit
   timeout: 2 hours
 
@@ -39,7 +40,8 @@ gitlab:
   image: docker:latest
   stage: deploy
   services:
-    - docker:dind
+    - name: docker:dind
+      command: ["--experimental"]
   variables:
     BUILD_DATE: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
     BUILD_VERSION: 1.9.6
@@ -47,10 +49,10 @@ gitlab:
   script:
     - echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
     - |
-      docker buildx build --pull --cache-from=${CI_REGISTRY_IMAGE} \
+      docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} \
       --build-arg BUILD_DATE --build-arg BUILD_VERSION --build-arg VCS_REF \
-      --platform=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 \
-      --push --tag=${CI_REGISTRY_IMAGE}:${BUILD_VERSION} --tag=${CI_REGISTRY_IMAGE}:latest
+      --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 \
+      --push -t ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} -t ${CI_REGISTRY_IMAGE}:latest
   timeout: 2 hours
   only:
     - master
