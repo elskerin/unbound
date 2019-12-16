@@ -21,30 +21,13 @@ before_script:
   - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
   - docker buildx create --use --driver docker-container
   - echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
+  - echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin docker.io
 
 .test:
   stage: test
   script:
     - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform ${PLATFORM} --tag ${DOCKERHUB_REPOSITORY} --load .
     - docker-compose up --abort-on-container-exit
-
-gitlab:
-  stage: deploy
-  script:
-    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 --build-arg BUILD_DATE --build-arg BUILD_VERSION --build-arg VCS_REF --tag ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} --tag ${CI_REGISTRY_IMAGE}:latest --push .
-  timeout: 2 hours
-  only:
-    - master
-
-dockerhub:
-  extends: gitlab
-  variables:
-    CI_REGISTRY: docker.io
-    CI_REGISTRY_IMAGE: docker.io/${DOCKERHUB_REPOSITORY}
-    CI_REGISTRY_USER: ${DOCKERHUB_USERNAME}
-    CI_REGISTRY_PASSWORD: ${DOCKERHUB_PASSWORD}
-  after_script:
-    - docker run -v ${PWD}:/workspace -e DOCKERHUB_USERNAME -e DOCKERHUB_PASSWORD -e DOCKERHUB_REPOSITORY -e README_FILEPATH=/workspace/README.md peterevans/dockerhub-description
 
 linux/amd64:
   extends: .test
@@ -75,3 +58,12 @@ linux/arm/v6:
   extends: .test
   variables:
     PLATFORM: linux/arm/v6
+
+deploy:
+  stage: deploy
+  script:
+    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 --build-arg BUILD_DATE --build-arg BUILD_VERSION --build-arg VCS_REF --tag ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} --tag ${CI_REGISTRY_IMAGE}:latest --tag docker.io/${DOCKERHUB_REPOSITORY}:${BUILD_VERSION} --tag docker.io/${DOCKERHUB_REPOSITORY}:latest --push .
+    - docker run -v ${PWD}:/workspace -e DOCKERHUB_USERNAME -e DOCKERHUB_PASSWORD -e DOCKERHUB_REPOSITORY -e README_FILEPATH=/workspace/README.md peterevans/dockerhub-description
+  timeout: 2 hours
+  only:
+    - master
