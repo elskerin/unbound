@@ -27,13 +27,12 @@ before_script:
   script:
     - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform ${PLATFORM} --tag ${DOCKERHUB_REPOSITORY} --load .
     - docker-compose up --abort-on-container-exit
-  timeout: 3 hours
 
 gitlab:
   stage: deploy
   script:
     - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 --build-arg BUILD_DATE --build-arg BUILD_VERSION --build-arg VCS_REF --tag ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} --tag ${CI_REGISTRY_IMAGE}:latest --push .
-  timeout: 3 hours
+  timeout: 2 hours
   only:
     - master
 
