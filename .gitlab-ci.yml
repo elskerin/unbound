@@ -11,12 +11,13 @@ services:
     command: ["--experimental"]
 
 before_script:
-  - apk add --no-cache curl
-  - curl -fsSL https://github.com/docker/compose/releases/download/1.25.0/run.sh -o /usr/local/bin/docker-compose
-  - chmod a+x /usr/local/bin/docker-compose
+  - apk add --no-cache curl py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
+  - pip install docker-compose
+  - export DOCKER_BUILDKIT=1
+  - git clone git://github.com/docker/buildx /tmp/buildx
+  - docker build --platform=local -o . /tmp/buildx
   - mkdir -p ~/.docker/cli-plugins
-  - curl -fsSL https://github.com/docker/buildx/releases/download/v0.3.0/buildx-v0.3.0.linux-amd64 --output ~/.docker/cli-plugins/docker-buildx
-  - chmod a+x ~/.docker/cli-plugins/docker-buildx
+  - mv buildx ~/.docker/cli-plugins/docker-buildx
   - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
   - docker buildx create --use --driver docker-container
   - echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
@@ -25,8 +26,7 @@ before_script:
 .test:
   stage: test
   script:
-    - docker pull --platform ${PLATFORM} ${CI_REGISTRY_IMAGE}:latest || true
-    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE}:latest --platform ${PLATFORM} --tag ${DOCKERHUB_REPOSITORY} --cache-to type=local,dest=.cache/${PLATFORM} --load .
+    - docker buildx build --pull --platform ${PLATFORM} --tag ${DOCKERHUB_REPOSITORY} --cache-to type=local,dest=.cache/${PLATFORM} --load .
     - docker-compose up --abort-on-container-exit
   artifacts:
     paths:
