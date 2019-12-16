@@ -25,7 +25,7 @@ Simply pulling `klutchell/unbound` should retrieve the correct image for your ar
 docker build . -t klutchell/unbound
 
 # (re)build and test a local image
-docker-compose up --abort-on-container-exit
+docker-compose up --build --abort-on-container-exit
 ```
 
 ## Usage
@@ -70,6 +70,3 @@ Original software is by NLnet Labs: <https://github.com/NLnetLabs/unbound>
 - klutchell/unbound: [MIT License](./LICENSE)
 - unbound: [BSD 3-Clause "New" or "Revised" License](https://github.com/NLnetLabs/unbound/blob/master/LICENSE)
 - ldns: [BSD 3-Clause "New" or "Revised" License](https://github.com/NLnetLabs/ldns/blob/develop/LICENSE)
-- openssl: [OpenSSL License & Original SSLeay License](https://www.openssl.org/source/license-openssl-ssleay.txt)
-- libevent: [BSD License](https://libevent.org/LICENSE.txt)
-- libexpat: [MIT License](https://github.com/libexpat/libexpat/blob/master/expat/COPYING)
