@@ -2,42 +2,16 @@ FROM alpine:3.10 as build
 
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
-RUN apk add --no-cache build-base=0.5-r1 ca-certificates=20190108-r0 curl=7.66.0-r0 linux-headers=4.19.36-r0 perl=5.28.2-r1 python=2.7.16-r1
-
-WORKDIR /tmp/libevent
-
-ARG LIBEVENT_VERSION=release-2.1.11-stable/libevent-2.1.11-stable
-ARG LIBEVENT_SOURCE=https://github.com/libevent/libevent/releases/download/
-
-RUN curl -fsSL --retry 3 "${LIBEVENT_SOURCE}${LIBEVENT_VERSION}.tar.gz" -o libevent.tar.gz \
-	&& tar xzf libevent.tar.gz --strip 1 \
-	&& ./configure --prefix=/opt/libevent --disable-shared \
-	&& make -j 4 \
-	&& make install
-
-WORKDIR /tmp/libexpat
-
-ARG LIBEXPAT_VERSION=R_2_2_9/expat-2.2.9
-ARG LIBEXPAT_SOURCE=https://github.com/libexpat/libexpat/releases/download/
-
-RUN curl -fsSL --retry 3 "${LIBEXPAT_SOURCE}${LIBEXPAT_VERSION}.tar.gz" -o libexpat.tar.gz \
-	&& tar xzf libexpat.tar.gz --strip 1 \
-	&& ./configure --prefix=/opt/libexpat --disable-shared \
-	&& make -j 4 \
-	&& make install
-
-WORKDIR /tmp/openssl
-
-ARG OPENSSL_VERSION=openssl-1.1.1d
-ARG OPENSSL_SOURCE=https://www.openssl.org/source/
-ARG OPENSSL_SHA1=056057782325134b76d1931c48f2c7e6595d7ef4
-
-RUN curl -fsSL --retry 3 "${OPENSSL_SOURCE}${OPENSSL_VERSION}.tar.gz" -o openssl.tar.gz \
-	&& echo "${OPENSSL_SHA1}  openssl.tar.gz" | sha1sum -c - \
-	&& tar xzf openssl.tar.gz --strip 1 \
-	&& ./config --prefix=/opt/openssl --openssldir=/opt/openssl no-weak-ssl-ciphers no-ssl3 no-heartbeats -fstack-protector-strong no-shared \
-	&& make -j 4 \
-	&& make install_sw
+RUN apk add --no-cache \
+	build-base=0.5-r1 \
+	ca-certificates=20190108-r0 \
+	curl=7.66.0-r0 \
+	expat-dev=2.2.8-r0 \
+	libevent-dev=2.1.10-r0 \
+	libevent-static=2.1.10-r0 \
+	linux-headers=4.19.36-r0 \
+	openssl-dev=1.1.1d-r0 \
+	perl=5.28.2-r1
 
 WORKDIR /tmp/unbound
 
@@ -48,8 +22,7 @@ ARG UNBOUND_SHA1=b6af3dc87ec3b372f96390c2527140ab8679fc18
 RUN curl -fsSL --retry 3 "${UNBOUND_SOURCE}${UNBOUND_VERSION}.tar.gz" -o unbound.tar.gz \
 	&& echo "${UNBOUND_SHA1}  unbound.tar.gz" | sha1sum -c - \
 	&& tar xzf unbound.tar.gz --strip 1 \
-	&& sed -e 's/@LDFLAGS@/@LDFLAGS@ -all-static/' -i Makefile.in \
-	&& ./configure --with-pthreads --with-libevent=/opt/libevent --with-libexpat=/opt/libexpat --with-ssl=/opt/openssl --prefix=/opt/unbound --with-run-dir=/var/run/unbound --with-username= --with-chroot-dir= --enable-fully-static --disable-shared --enable-event-api --disable-flto \
+	&& ./configure --with-pthreads --with-libevent --prefix=/opt/unbound --with-run-dir=/var/run/unbound --with-username= --with-chroot-dir= --enable-fully-static --disable-shared --enable-event-api --disable-flto \
 	&& make -j 4 install
 
 WORKDIR /tmp/ldns
@@ -61,7 +34,8 @@ ARG LDNS_SHA1=d075a08972c0f573101fb4a6250471daaa53cb3e
 RUN curl -fsSL --retry 3 "${LDNS_SOURCE}${LDNS_VERSION}.tar.gz" -o ldns.tar.gz \
 	&& echo "${LDNS_SHA1}  ldns.tar.gz" | sha1sum -c - \
 	&& tar xzf ldns.tar.gz --strip 1 \
-	&& ./configure --prefix=/opt/ldns --with-drill --with-ssl=/opt/openssl --disable-shared \
+	&& sed -e 's/@LDFLAGS@/@LDFLAGS@ -all-static/' -i Makefile.in \
+	&& ./configure --prefix=/opt/ldns --with-drill --disable-shared \
 	&& make -j 4 \
 	&& make install
 
