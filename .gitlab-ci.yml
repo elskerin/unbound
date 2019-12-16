@@ -26,7 +26,7 @@ before_script:
 .test:
   stage: test
   script:
-    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform ${PLATFORM} --tag ${DOCKERHUB_REPOSITORY} --load .
+    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE}:latest --platform ${PLATFORM} --tag ${DOCKERHUB_REPOSITORY} --load .
     - docker-compose up --abort-on-container-exit
 
 linux/amd64:
@@ -62,7 +62,7 @@ linux/arm/v6:
 deploy:
   stage: deploy
   script:
-    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 --build-arg BUILD_DATE --build-arg BUILD_VERSION --build-arg VCS_REF --tag ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} --tag ${CI_REGISTRY_IMAGE}:latest --tag docker.io/${DOCKERHUB_REPOSITORY}:${BUILD_VERSION} --tag docker.io/${DOCKERHUB_REPOSITORY}:latest --push .
+    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE}:latest --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 --build-arg BUILD_DATE --build-arg BUILD_VERSION --build-arg VCS_REF --tag ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} --tag ${CI_REGISTRY_IMAGE}:latest --tag docker.io/${DOCKERHUB_REPOSITORY}:${BUILD_VERSION} --tag docker.io/${DOCKERHUB_REPOSITORY}:latest --push .
     - docker run -v ${PWD}:/workspace -e DOCKERHUB_USERNAME -e DOCKERHUB_PASSWORD -e DOCKERHUB_REPOSITORY -e README_FILEPATH=/workspace/README.md peterevans/dockerhub-description
   timeout: 2 hours
   only:
