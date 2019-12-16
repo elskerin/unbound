@@ -13,8 +13,6 @@ services:
 before_script:
   - mkdir -p ~/.docker/cli-plugins
   - mv buildx ~/.docker/cli-plugins/docker-buildx
-  - apk add --no-cache curl py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
-  - pip install docker-compose
   - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
   - docker buildx create --use --driver docker-container
   - echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
@@ -38,7 +36,10 @@ buildx:
   stage: test
   script:
     - docker buildx build --pull --platform ${PLATFORM} --tag ${DOCKERHUB_REPOSITORY} --cache-to type=local,dest=.cache/${PLATFORM} --load .
-    - docker-compose up --abort-on-container-exit
+    - docker run --rm -d --name unbound_selftest ${DOCKERHUB_REPOSITORY}
+    - docker exec unbound_selftest unbound-anchor -v | tee /dev/stderr | grep -q success
+    - docker exec unbound_selftest drill -p 5053 nlnetlabs.nl @127.0.0.1 | tee /dev/stderr | grep -q NOERROR
+    - docker stop unbound_selftest
   artifacts:
     paths:
       - .cache
