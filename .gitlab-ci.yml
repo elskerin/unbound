@@ -11,17 +11,28 @@ services:
     command: ["--experimental"]
 
 before_script:
-  - apk add --no-cache curl py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
-  - pip install docker-compose
-  - export DOCKER_BUILDKIT=1
-  - git clone git://github.com/docker/buildx /tmp/buildx
-  - docker build --platform=local -o . /tmp/buildx
   - mkdir -p ~/.docker/cli-plugins
   - mv buildx ~/.docker/cli-plugins/docker-buildx
+  - apk add --no-cache curl py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
+  - pip install docker-compose
   - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
   - docker buildx create --use --driver docker-container
   - echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
   - echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin docker.io
+
+buildx:
+  stage: .pre
+  variables:
+    GIT_STRATEGY: none
+    DOCKER_BUILDKIT: 1
+  before_script: []
+  script:
+    - git clone git://github.com/docker/buildx /tmp/buildx
+    - docker build --platform=local -o . /tmp/buildx
+  artifacts:
+    paths:
+      - buildx
+    expire_in: 1 hour
 
 .test:
   stage: test
@@ -30,9 +41,8 @@ before_script:
     - docker-compose up --abort-on-container-exit
   artifacts:
     paths:
-      - .cache/${PLATFORM}
+      - .cache
     expire_in: 1 hour
-
 
 linux/amd64:
   extends: .test
