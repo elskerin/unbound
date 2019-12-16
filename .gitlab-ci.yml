@@ -25,8 +25,13 @@ before_script:
   stage: test
   script:
     - docker pull --platform ${PLATFORM} ${CI_REGISTRY_IMAGE}:latest || true
-    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE}:latest --platform ${PLATFORM} --tag ${DOCKERHUB_REPOSITORY} --load .
+    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE}:latest --platform ${PLATFORM} --tag ${DOCKERHUB_REPOSITORY} --cache-to type=local,dest=.cache/${PLATFORM} --load .
     - docker-compose up --abort-on-container-exit
+  artifacts:
+    paths:
+      - .cache/${PLATFORM}
+    expire_in: 1 hour
+
 
 linux/amd64:
   extends: .test
@@ -61,8 +66,7 @@ linux/arm/v6:
 deploy:
   stage: deploy
   script:
-    - docker pull ${CI_REGISTRY_IMAGE}:latest || true
-    - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE}:latest --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 --build-arg BUILD_DATE --build-arg BUILD_VERSION --build-arg VCS_REF --tag ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} --tag ${CI_REGISTRY_IMAGE}:latest --tag docker.io/${DOCKERHUB_REPOSITORY}:${BUILD_VERSION} --tag docker.io/${DOCKERHUB_REPOSITORY}:latest --push .
+    - docker buildx build --pull --cache-from type=local,src=.cache/linux/amd64 --cache-from type=local,src=.cache/linux/arm64 --cache-from type=local,src=.cache/linux/ppc64le --cache-from type=local,src=.cache/linux/s390x --cache-from type=local,src=.cache/linux/arm/v7 --cache-from type=local,src=.cache/linux/arm/v6 --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 --build-arg BUILD_DATE --build-arg BUILD_VERSION --build-arg VCS_REF --tag ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} --tag ${CI_REGISTRY_IMAGE}:latest --tag docker.io/${DOCKERHUB_REPOSITORY}:${BUILD_VERSION} --tag docker.io/${DOCKERHUB_REPOSITORY}:latest --push .
     - docker run -v ${PWD}:/workspace -e DOCKERHUB_USERNAME -e DOCKERHUB_PASSWORD -e DOCKERHUB_REPOSITORY -e README_FILEPATH=/workspace/README.md peterevans/dockerhub-description
   timeout: 2 hours
   only:
