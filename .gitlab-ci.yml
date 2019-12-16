@@ -11,40 +11,29 @@ services:
     command: ["--experimental"]
 
 before_script:
-  - mkdir -p ~/.docker/cli-plugins
-  - mv buildx ~/.docker/cli-plugins/docker-buildx
   - apk add --no-cache curl py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
   - pip install docker-compose
+  - export DOCKER_BUILDKIT=1
+  - git clone git://github.com/docker/buildx /tmp/buildx
+  - docker build --platform=local -o . /tmp/buildx
+  - mkdir -p ~/.docker/cli-plugins
+  - mv buildx ~/.docker/cli-plugins/docker-buildx
   - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
   - docker buildx create --use --driver docker-container
   - echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
-
-buildx:
-  stage: .pre
-  variables:
-    GIT_STRATEGY: none
-    DOCKER_BUILDKIT: 1
-  before_script: []
-  script:
-    - git clone git://github.com/docker/buildx /tmp/buildx
-    - docker build --platform=local -o . /tmp/buildx
-  artifacts:
-    paths:
-      - buildx
-    expire_in: 1 hour
 
 .test:
   stage: test
   script:
     - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform ${PLATFORM} --tag ${DOCKERHUB_REPOSITORY} --load .
     - docker-compose up --abort-on-container-exit
-  timeout: 2 hours
+  timeout: 3 hours
 
 gitlab:
   stage: deploy
   script:
     - docker buildx build --pull --cache-from ${CI_REGISTRY_IMAGE} --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 --build-arg BUILD_DATE --build-arg BUILD_VERSION --build-arg VCS_REF --tag ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} --tag ${CI_REGISTRY_IMAGE}:latest --push .
-  timeout: 2 hours
+  timeout: 3 hours
   only:
     - master
 
