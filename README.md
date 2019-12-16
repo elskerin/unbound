@@ -26,7 +26,7 @@ docker build . -t klutchell/unbound
 
 # run selftest on local image
 docker run --rm -d --name unbound_selftest klutchell/unbound
-docker exec unbound_selftest unbound-anchor -v | tee /dev/stderr | grep -q success
+(docker exec unbound_selftest unbound-anchor -v) | tee /dev/stderr | grep -q success
 docker exec unbound_selftest drill -p 5053 nlnetlabs.nl @127.0.0.1 | tee /dev/stderr | grep -q NOERROR
 docker stop unbound_selftest
 ```
