@@ -66,7 +66,21 @@ linux/arm/v6:
 deploy:
   stage: deploy
   script:
-    - docker buildx build --pull --cache-from type=local,src=.cache/linux/amd64 --cache-from type=local,src=.cache/linux/arm64 --cache-from type=local,src=.cache/linux/ppc64le --cache-from type=local,src=.cache/linux/s390x --cache-from type=local,src=.cache/linux/arm/v7 --cache-from type=local,src=.cache/linux/arm/v6 --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 --build-arg BUILD_DATE --build-arg BUILD_VERSION --build-arg VCS_REF --tag ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} --tag ${CI_REGISTRY_IMAGE}:latest --tag docker.io/${DOCKERHUB_REPOSITORY}:${BUILD_VERSION} --tag docker.io/${DOCKERHUB_REPOSITORY}:latest --push .
+    - |
+      docker buildx build . --pull --push --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 \
+      --cache-from type=local,src=.cache/linux/amd64 \
+      --cache-from type=local,src=.cache/linux/arm64 \
+      --cache-from type=local,src=.cache/linux/ppc64le \
+      --cache-from type=local,src=.cache/linux/s390x \
+      --cache-from type=local,src=.cache/linux/arm/v7 \
+      --cache-from type=local,src=.cache/linux/arm/v6 \
+      --build-arg BUILD_DATE \
+      --build-arg BUILD_VERSION \
+      --build-arg VCS_REF \
+      --tag ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} \
+      --tag ${CI_REGISTRY_IMAGE}:latest \
+      --tag docker.io/${DOCKERHUB_REPOSITORY}:${BUILD_VERSION} \
+      --tag docker.io/${DOCKERHUB_REPOSITORY}:latest
     - docker run -v ${PWD}:/workspace -e DOCKERHUB_USERNAME -e DOCKERHUB_PASSWORD -e DOCKERHUB_REPOSITORY -e README_FILEPATH=/workspace/README.md peterevans/dockerhub-description
   timeout: 2 hours
   only:
