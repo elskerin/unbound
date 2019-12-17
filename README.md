@@ -1,15 +1,10 @@
 # unofficial unbound multiarch docker image
 
+[![Gitlab pipeline status](https://img.shields.io/gitlab/pipeline/klutchell/unbound?style=flat-square)](https://gitlab.com/klutchell/unbound/pipelines)
 [![Docker Pulls](https://img.shields.io/docker/pulls/klutchell/unbound.svg?style=flat-square)](https://hub.docker.com/r/klutchell/unbound/)
 [![Docker Stars](https://img.shields.io/docker/stars/klutchell/unbound.svg?style=flat-square)](https://hub.docker.com/r/klutchell/unbound/)
 
 [Unbound](https://unbound.net/) is a validating, recursive, and caching DNS resolver.
-
-## Source
-
-This project is currently hosted on GitLab.
-
-<https://gitlab.com/klutchell/unbound>
 
 ## Architectures
 
