@@ -5,6 +5,12 @@
 
 [Unbound](https://unbound.net/) is a validating, recursive, and caching DNS resolver.
 
+## Source
+
+This project is currently hosted on GitLab.
+
+<https://gitlab.com/klutchell/unbound>
+
 ## Architectures
 
 The architectures supported by this image are:
@@ -18,12 +24,16 @@ The architectures supported by this image are:
 
 Simply pulling `klutchell/unbound` should retrieve the correct image for your arch.
 
-## Building
+## Build
 
 ```bash
 # build a local image
 docker build . -t klutchell/unbound
+```
 
+## Test
+
+```bash
 # run selftest on local image
 docker run --rm -d --name unbound_selftest klutchell/unbound
 docker exec unbound_selftest unbound-anchor -v
@@ -64,12 +74,14 @@ Kyle Harding: <https://klutchell.dev>
 
 Please open an issue or submit a pull request with any features, fixes, or changes.
 
+<https://gitlab.com/klutchell/unbound/issues>
+
 ## Acknowledgments
 
 Original software is by NLnet Labs: <https://github.com/NLnetLabs/unbound>
 
 ## Licenses
 
-- klutchell/unbound: [MIT License](./LICENSE)
+- klutchell/unbound: [MIT License](https://gitlab.com/klutchell/unbound/blob/master/LICENSE)
 - unbound: [BSD 3-Clause "New" or "Revised" License](https://github.com/NLnetLabs/unbound/blob/master/LICENSE)
 - ldns: [BSD 3-Clause "New" or "Revised" License](https://github.com/NLnetLabs/ldns/blob/develop/LICENSE)
