@@ -24,16 +24,22 @@ Simply pulling `klutchell/unbound` should retrieve the correct image for your ar
 ```bash
 # build a local image
 docker build . -t klutchell/unbound
+
+# cross-build for another platform (eg. arm32v6)
+export DOCKER_CLI_EXPERIMENTAL=enabled
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+docker buildx create --use --driver docker-container
+docker buildx build . --platform linux/arm/v6 --load -t klutchell/unbound
 ```
 
 ## Test
 
 ```bash
 # run selftest on local image
-docker run --rm -d --name unbound_selftest klutchell/unbound
-docker exec unbound_selftest unbound-anchor -v
-docker exec unbound_selftest drill -p 5053 nlnetlabs.nl @127.0.0.1
-docker stop unbound_selftest
+docker run --rm -d --name unbound klutchell/unbound
+docker exec unbound unbound-anchor -v
+docker exec unbound drill -p 5053 nlnetlabs.nl @127.0.0.1
+docker stop unbound
 ```
 
 ## Usage
@@ -79,4 +85,3 @@ Original software is by NLnet Labs: <https://github.com/NLnetLabs/unbound>
 
 - klutchell/unbound: [MIT License](https://gitlab.com/klutchell/unbound/blob/master/LICENSE)
 - unbound: [BSD 3-Clause "New" or "Revised" License](https://github.com/NLnetLabs/unbound/blob/master/LICENSE)
-- ldns: [BSD 3-Clause "New" or "Revised" License](https://github.com/NLnetLabs/ldns/blob/develop/LICENSE)
