@@ -10,14 +10,14 @@ RUN apk add --no-cache \
 	libevent-dev=2.1.10-r0 \
 	libevent-static=2.1.10-r0 \
 	linux-headers=4.19.36-r0 \
-	openssl-dev=1.1.1d-r0 \
+	openssl-dev=1.1.1d-r2 \
 	perl=5.28.2-r1
 
 WORKDIR /tmp/unbound
 
-ARG UNBOUND_VERSION=unbound-1.9.6
+ARG UNBOUND_VERSION=unbound-1.10.0
 ARG UNBOUND_SOURCE=https://www.nlnetlabs.nl/downloads/unbound/
-ARG UNBOUND_SHA1=b6af3dc87ec3b372f96390c2527140ab8679fc18
+ARG UNBOUND_SHA1=2c175131f7f4c8f6fd2be4a03073d864596d0be6
 
 RUN curl -fsSL --retry 3 "${UNBOUND_SOURCE}${UNBOUND_VERSION}.tar.gz" -o unbound.tar.gz \
 	&& echo "${UNBOUND_SHA1}  unbound.tar.gz" | sha1sum -c - \
