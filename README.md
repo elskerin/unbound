@@ -61,6 +61,28 @@ docker run --name unbound -p 53:5053/udp -v /path/to/config:/opt/unbound/etc/unb
 docker exec unbound unbound-anchor -v
 ```
 
+Example: use Unbound as upstream DNS for Pi-Hole
+
+```bash
+# run unbound and bind to port 5053
+docker run -d --name unbound -p 5053:5053/tcp -p 5053:5053/udp --restart=unless-stopped klutchell/unbound
+
+# run pihole and bind to host network stack with 127.0.0.1:5053 (unbound) as DNS1/DNS2
+docker run -d --name pihole \
+    -e ServerIP=your_IP_here \
+    -e TZ=time_zone_here \
+    -e WEBPASSWORD=Password \
+    -e DNS1=127.0.0.1:5053 \
+    -e DNS2=127.0.0.1:5053 \
+    -v ~/pihole/:/etc/pihole/ \
+    --dns=127.0.0.1 \
+    --dns=1.1.1.1 \
+    --cap-add=NET_ADMIN \
+    --network=host \
+    --restart=unless-stopped \
+    pihole/pihole
+```
+
 Please note the following if you are using a custom configuration file:
 
 - `chroot` and `username` are not supported as the service is already running as `nobody:nogroup`
