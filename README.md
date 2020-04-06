@@ -80,8 +80,8 @@ docker run -d --name pihole \
     -e ServerIP=your_IP_here \
     -e TZ=time_zone_here \
     -e WEBPASSWORD=Password \
-    -e DNS1=127.0.0.1:5053 \
-    -e DNS2=127.0.0.1:5053 \
+    -e DNS1=127.0.0.1#5053 \
+    -e DNS2=127.0.0.1#5053 \
     -v ~/pihole/:/etc/pihole/ \
     --dns=127.0.0.1 \
     --dns=1.1.1.1 \
