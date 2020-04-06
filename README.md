@@ -91,6 +91,42 @@ docker run -d --name pihole \
     pihole/pihole
 ```
 
+If using docker-compose something like the following may suffice.
+
+```yaml
+version: '2.1'
+
+volumes:
+  pihole:
+  dnsmasq:
+
+services:
+  pihole:
+    image: pihole/pihole
+    privileged: true
+    volumes:
+      - 'pihole:/etc/pihole'
+      - 'dnsmasq:/etc/dnsmasq.d'
+    dns:
+      - '127.0.0.1'
+      - '1.1.1.1'
+    network_mode: host
+    environment:
+      - 'ServerIP=192.168.8.8'
+      - 'TZ=America/Toronto'
+      - 'WEBPASSWORD=secretpassword'
+      - 'DNS1=127.0.0.1#5053'
+      - 'DNS2=127.0.0.1#5053'
+      - 'INTERFACE=eth0'
+      - 'DNSMASQ_LISTENING=eth0'
+  unbound:
+    image: klutchell/unbound
+    ports:
+      - '5053:5053/udp'
+```
+
+
+
 ## Author
 
 Kyle Harding: <https://klutchell.dev>
