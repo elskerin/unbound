@@ -4,7 +4,6 @@ SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
 RUN apk add --no-cache \
 	build-base=0.5-r1 \
-	ca-certificates=20190108-r0 \
 	curl=7.66.0-r0 \
 	expat-dev=2.2.8-r0 \
 	libevent-dev=2.1.10-r0 \
