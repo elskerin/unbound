@@ -37,8 +37,8 @@ docker buildx build . --platform linux/arm/v6 --load -t klutchell/unbound
 ```bash
 # run selftest on local image
 docker run --rm -d --name unbound klutchell/unbound
-docker exec unbound unbound-anchor -v
-docker exec unbound drill -p 5053 nlnetlabs.nl @127.0.0.1
+docker exec unbound drill -p 5053 sigok.verteiltesysteme.net @127.0.0.1
+docker exec unbound drill -p 5053 sigfail.verteiltesysteme.net @127.0.0.1
 docker stop unbound
 ```
 
@@ -55,17 +55,9 @@ docker run -p 53:5053/tcp -p 53:5053/udp klutchell/unbound
 
 # run unbound server with configuration mounted from a host directory
 docker run --name unbound -p 53:5053/udp -v /path/to/config:/opt/unbound/etc/unbound klutchell/unbound
-
-# generate a root trust anchor for DNSSEC validation
-# assumes your existing container is named 'unbound' as in the example above
-docker exec unbound unbound-anchor -v
 ```
 
-Please note the following if you are using a custom configuration file:
-
-- `chroot` and `username` are not supported as the service is already running as `nobody:nogroup`
-- `auto-trust-anchor-file` should be omitted or set to `root.key`
-- any additional paths should be relative to `/var/run/unbound`
+Please note that `chroot` and `username` configuration fields are not supported as the service is already running as `nobody:nogroup`
 
 ### Example
 
