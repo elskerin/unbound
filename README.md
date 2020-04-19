@@ -54,6 +54,10 @@ docker run --rm klutchell/unbound -h
 # run a recursive dns server on host port 53
 docker run -p 53:5053/tcp -p 53:5053/udp klutchell/unbound
 
+# update the root trust anchor for DNSSEC validation
+# assumes your existing container is named 'unbound' as in the example above
+docker exec unbound unbound-anchor -v
+
 # run unbound server with configuration mounted from a host directory
 docker run --name unbound -p 53:5053/udp -v /path/to/config:/opt/unbound/etc/unbound klutchell/unbound
 ```
