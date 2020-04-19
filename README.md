@@ -37,6 +37,7 @@ docker buildx build . --platform linux/arm/v6 --load -t klutchell/unbound
 ```bash
 # run selftest on local image
 docker run --rm -d --name unbound klutchell/unbound
+docker exec unbound unbound-anchor -v
 docker exec unbound drill -p 5053 sigok.verteiltesysteme.net @127.0.0.1
 docker exec unbound drill -p 5053 sigfail.verteiltesysteme.net @127.0.0.1
 docker stop unbound
