@@ -39,7 +39,8 @@ buildx:
     - docker run --rm -d --name unbound unbound
     - set +o pipefail
     - docker exec unbound unbound-anchor -v | tee /dev/stderr | grep -q success
-    - docker exec unbound drill -p 5053 nlnetlabs.nl @127.0.0.1 | tee /dev/stderr | grep -q NOERROR
+    - docker exec unbound drill -p 5053 sigok.verteiltesysteme.net @127.0.0.1 | tee /dev/stderr | grep -q NOERROR
+    - docker exec unbound drill -p 5053 sigfail.verteiltesysteme.net @127.0.0.1 | tee /dev/stderr | grep -q SERVFAIL
     - docker stop unbound
   artifacts:
     paths:
