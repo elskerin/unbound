@@ -62,7 +62,13 @@ docker run --name unbound -p 53:5053/udp -v /path/to/config:/opt/unbound/etc/unb
 docker exec unbound unbound-anchor -v
 ```
 
-Please note that `chroot` and `username` configuration fields are not supported as the service is already running as `nobody:nogroup`
+The provided `unbound.conf` will provide recursive DNS with DNSSEC validation.
+However Unbound has many features available so I recommend getting familiar with the documentation and mounting your own config directory.
+
+- <https://nlnetlabs.nl/documentation/unbound/unbound.conf/>
+- <https://nlnetlabs.nl/documentation/unbound/howto-optimise/>
+
+Please note that `chroot` and `username` configuration fields are not supported as the service is already running as `nobody:nogroup`.
 
 ### Example
 
