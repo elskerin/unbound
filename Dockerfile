@@ -14,8 +14,8 @@ RUN apk add --no-cache \
 
 WORKDIR /tmp/unbound
 
-ARG UNBOUND_VERSION=unbound-1.11.0
-ARG UNBOUND_SOURCE=https://www.nlnetlabs.nl/downloads/unbound/
+ARG UNBOUND_SOURCE=https://www.nlnetlabs.nl/downloads/unbound/unbound-
+ARG UNBOUND_VERSION=1.11.0
 ARG UNBOUND_SHA1=a6c38b06ceff8ac05297bf2d151f2c6a8e5b6e96
 
 RUN curl -fsSL --retry 3 "${UNBOUND_SOURCE}${UNBOUND_VERSION}.tar.gz" -o unbound.tar.gz \
@@ -26,8 +26,8 @@ RUN curl -fsSL --retry 3 "${UNBOUND_SOURCE}${UNBOUND_VERSION}.tar.gz" -o unbound
 
 WORKDIR /tmp/ldns
 
-ARG LDNS_VERSION=ldns-1.7.1
-ARG LDNS_SOURCE=https://www.nlnetlabs.nl/downloads/ldns/
+ARG LDNS_SOURCE=https://www.nlnetlabs.nl/downloads/ldns/ldns-
+ARG LDNS_VERSION=1.7.1
 ARG LDNS_SHA1=d075a08972c0f573101fb4a6250471daaa53cb3e
 
 RUN curl -fsSL --retry 3 "${LDNS_SOURCE}${LDNS_VERSION}.tar.gz" -o ldns.tar.gz \
@@ -50,19 +50,12 @@ RUN mv /opt/unbound/etc/unbound/unbound.conf /opt/unbound/etc/unbound/example.co
 
 FROM scratch
 
-ARG BUILD_DATE
-ARG BUILD_VERSION
-ARG VCS_REF
-
 LABEL org.opencontainers.image.authors "Kyle Harding <https://klutchell.dev>"
 LABEL org.opencontainers.image.url "https://gitlab.com/klutchell/unbound"
 LABEL org.opencontainers.image.documentation "https://gitlab.com/klutchell/unbound"
 LABEL org.opencontainers.image.source "https://gitlab.com/klutchell/unbound"
 LABEL org.opencontainers.image.title "klutchell/unbound"
 LABEL org.opencontainers.image.description "Unbound is a validating, recursive, caching DNS resolver"
-LABEL org.opencontainers.image.created "${BUILD_DATE}"
-LABEL org.opencontainers.image.version "${BUILD_VERSION}"
-LABEL org.opencontainers.image.revision "${VCS_REF}"
 
 COPY --from=build /etc/passwd /etc/group /etc/
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/

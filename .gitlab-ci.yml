@@ -1,6 +1,6 @@
 
 variables:
-  BUILD_VERSION: 1.10.1
+  BUILD_VERSION: $(grep 'UNBOUND_VERSION=' Dockerfile | awk -F '=' '{print $2}')
   BUILD_DATE: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
   VCS_REF: $(git describe --tags --always --dirty)
 
@@ -75,9 +75,9 @@ deploy:
       --cache-from type=local,src=.cache/linux/s390x \
       --cache-from type=local,src=.cache/linux/arm/v7 \
       --cache-from type=local,src=.cache/linux/arm/v6 \
-      --build-arg BUILD_DATE \
-      --build-arg BUILD_VERSION \
-      --build-arg VCS_REF \
+      --label "org.opencontainers.image.created=${BUILD_DATE}"
+      --label "org.opencontainers.image.version=${BUILD_VERSION}"
+      --label "org.opencontainers.image.revision=${VCS_REF}"
       --tag ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} \
       --tag ${CI_REGISTRY_IMAGE}:latest \
       --tag docker.io/${DOCKERHUB_REPOSITORY}:${BUILD_VERSION} \
