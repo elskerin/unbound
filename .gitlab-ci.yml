@@ -75,9 +75,9 @@ deploy:
       --cache-from type=local,src=.cache/linux/s390x \
       --cache-from type=local,src=.cache/linux/arm/v7 \
       --cache-from type=local,src=.cache/linux/arm/v6 \
-      --label "org.opencontainers.image.created=${BUILD_DATE}"
-      --label "org.opencontainers.image.version=${BUILD_VERSION}"
-      --label "org.opencontainers.image.revision=${VCS_REF}"
+      --label "org.opencontainers.image.created=${BUILD_DATE}" \
+      --label "org.opencontainers.image.version=${BUILD_VERSION}" \
+      --label "org.opencontainers.image.revision=${VCS_REF}" \
       --tag ${CI_REGISTRY_IMAGE}:${BUILD_VERSION} \
       --tag ${CI_REGISTRY_IMAGE}:latest \
       --tag docker.io/${DOCKERHUB_REPOSITORY}:${BUILD_VERSION} \
