@@ -4,7 +4,7 @@ SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
 RUN apk add --no-cache \
 	build-base=0.5-r1 \
-	curl=7.66.0-r0 \
+	curl=7.66.0-r1 \
 	expat-dev=2.2.8-r0 \
 	libevent-dev=2.1.10-r0 \
 	libevent-static=2.1.10-r0 \
@@ -15,8 +15,8 @@ RUN apk add --no-cache \
 WORKDIR /tmp/unbound
 
 ARG UNBOUND_SOURCE=https://www.nlnetlabs.nl/downloads/unbound/unbound-
-ARG UNBOUND_VERSION=1.11.0
-ARG UNBOUND_SHA1=a6c38b06ceff8ac05297bf2d151f2c6a8e5b6e96
+ARG UNBOUND_VERSION=1.12.0
+ARG UNBOUND_SHA1=68009078d5f5025c95a8c9fe20b9e84335d53e2d
 
 RUN curl -fsSL --retry 3 "${UNBOUND_SOURCE}${UNBOUND_VERSION}.tar.gz" -o unbound.tar.gz \
 	&& echo "${UNBOUND_SHA1}  unbound.tar.gz" | sha1sum -c - \
@@ -74,7 +74,3 @@ ENTRYPOINT ["unbound", "-d"]
 
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
 	CMD [ "drill", "-p", "5053", "nlnetlabs.nl", "@127.0.0.1" ]
-
-RUN ["unbound", "-V"]
-
-RUN ["drill", "-v"]

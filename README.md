@@ -23,7 +23,7 @@ Simply pulling `klutchell/unbound` should retrieve the correct image for your ar
 
 ```bash
 # build a local image
-docker build . -t klutchell/unbound
+docker build . --pull -t klutchell/unbound
 
 # cross-build for another platform (eg. arm32v6)
 export DOCKER_CLI_EXPERIMENTAL=enabled
