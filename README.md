@@ -1,6 +1,6 @@
 # unofficial unbound multiarch docker image
 
-[![Gitlab pipeline status](https://img.shields.io/gitlab/pipeline/klutchell/unbound?style=flat-square)](https://gitlab.com/klutchell/unbound/pipelines)
+[![Gitlab pipeline status](https://img.shields.io/gitlab/pipeline/klutchell/unbound/main?style=flat-square)](https://gitlab.com/klutchell/unbound/pipelines)
 [![Docker Pulls](https://img.shields.io/docker/pulls/klutchell/unbound.svg?style=flat-square)](https://hub.docker.com/r/klutchell/unbound/)
 [![Docker Stars](https://img.shields.io/docker/stars/klutchell/unbound.svg?style=flat-square)](https://hub.docker.com/r/klutchell/unbound/)
 
