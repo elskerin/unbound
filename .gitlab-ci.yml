@@ -47,11 +47,6 @@ linux/ppc64le:
   variables:
     PLATFORM: linux/ppc64le
 
-linux/s390x:
-  extends: .test
-  variables:
-    PLATFORM: linux/s390x
-
 linux/arm/v7:
   extends: .test
   variables:
@@ -66,11 +61,10 @@ deploy:
   stage: deploy
   script:
     - |
-      docker buildx build . --push --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/arm/v7,linux/arm/v6 \
+      docker buildx build . --push --platform linux/amd64,linux/arm64,linux/ppc64le,linux/arm/v7,linux/arm/v6 \
       --cache-from type=local,src=.cache/linux/amd64 \
       --cache-from type=local,src=.cache/linux/arm64 \
       --cache-from type=local,src=.cache/linux/ppc64le \
-      --cache-from type=local,src=.cache/linux/s390x \
       --cache-from type=local,src=.cache/linux/arm/v7 \
       --cache-from type=local,src=.cache/linux/arm/v6 \
       --label "org.opencontainers.image.created=${BUILD_DATE}" \
