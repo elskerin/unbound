@@ -15,8 +15,8 @@ RUN apk add --no-cache \
 WORKDIR /tmp/unbound
 
 ARG UNBOUND_SOURCE=https://www.nlnetlabs.nl/downloads/unbound/unbound-
-ARG UNBOUND_VERSION=1.12.0
-ARG UNBOUND_SHA1=68009078d5f5025c95a8c9fe20b9e84335d53e2d
+ARG UNBOUND_VERSION=1.13.0
+ARG UNBOUND_SHA1=f38a10b1f302cb41787c68d98e9b89f0e7dce613
 
 RUN curl -fsSL --retry 3 "${UNBOUND_SOURCE}${UNBOUND_VERSION}.tar.gz" -o unbound.tar.gz \
 	&& echo "${UNBOUND_SHA1}  unbound.tar.gz" | sha1sum -c - \
