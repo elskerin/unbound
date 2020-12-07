@@ -76,4 +76,4 @@ deploy:
       --tag docker.io/${DOCKERHUB_REPOSITORY}:latest
     - docker run -v ${PWD}:/workspace -e DOCKERHUB_USERNAME -e DOCKERHUB_PASSWORD -e DOCKERHUB_REPOSITORY -e README_FILEPATH=/workspace/README.md peterevans/dockerhub-description
   only:
-    - master
+    - main

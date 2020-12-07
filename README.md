@@ -147,5 +147,5 @@ Original software is by NLnet Labs: <https://github.com/NLnetLabs/unbound>
 
 ## Licenses
 
-- klutchell/unbound: [MIT License](https://gitlab.com/klutchell/unbound/blob/master/LICENSE)
+- klutchell/unbound: [MIT License](https://gitlab.com/klutchell/unbound/blob/main/LICENSE)
 - unbound: [BSD 3-Clause "New" or "Revised" License](https://github.com/NLnetLabs/unbound/blob/master/LICENSE)
